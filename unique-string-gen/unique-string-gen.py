@@ -28,5 +28,13 @@ pickle.dump(uniqueSet, open( "uniqueSet.pkl", "wb"))
 print "Saved to uniqueSet.pkl"
 print
 
-
+print "Generating PROGMEM array as uniqueSet.h"
+with open('uniqueSet.h', 'w') as f:
+    f.write("unsigned int uniqueSet[" + str(setSize) + "] PROGMEM = {\n")
+    for i in range(setSize/5):
+        if i == (setSize/5)-1:
+            f.write(str(uniqueSet[0+(i*5):]).replace('[','').replace(']','') + "\n")
+        else:
+            f.write(str(uniqueSet[0+(i*5):5+(i*5)]).replace('[','').replace(']','') + ",\n")
+    f.write("};\n")    
 
