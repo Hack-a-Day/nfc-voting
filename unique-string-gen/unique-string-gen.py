@@ -30,6 +30,7 @@ print
 
 print "Generating PROGMEM array as uniqueSet.h"
 with open('uniqueSet.h', 'w') as f:
+    f.write("unsigned int uniqueSetLen = " + str(setSize) + ";\n\n")
     f.write("unsigned int uniqueSet[" + str(setSize) + "] PROGMEM = {\n")
     for i in range(setSize/5):
         if i == (setSize/5)-1:
