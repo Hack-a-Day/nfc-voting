@@ -12,9 +12,14 @@
 
 #include <EEPROM.h>
 
+#include "/home/mike/compile/nfc-voting/uid_voting/uniqueSet.h"
+
 PN532_SPI pn532spi(SPI, 10);
 PN532 nfc(pn532spi);
 
+
+
+/* //Testing:
 unsigned int uniqueSetLen = 3;
 
 uint8_t uniqueSet[21] PROGMEM= {
@@ -25,6 +30,7 @@ uint8_t uniqueSet[21] PROGMEM= {
   0x04, 0x81, 0x78, 0xD2, 0x85, 0x32, 0x80,
 
 };
+*/
 
 //Need no more than 500 booleans so just use 64 bytes
 uint8_t hasVoted[64]; 
@@ -183,7 +189,7 @@ void loop(void) {
         Serial.println("Found a card!");
         //NTAG203 has 7-byte UID, ignore all others
         if (uidLength == 7) {
-          Serial.print(uid[0], HEX);Serial.print(uid[1], HEX);Serial.print(uid[1], HEX);Serial.print(uid[2], HEX);Serial.print(uid[3], HEX);Serial.print(uid[4], HEX);Serial.print(uid[5], HEX);Serial.println(uid[6], HEX);
+          Serial.print(uid[0], HEX);Serial.print(uid[1], HEX);Serial.print(uid[2], HEX);Serial.print(uid[3], HEX);Serial.print(uid[4], HEX);Serial.print(uid[5], HEX);Serial.println(uid[6], HEX);
           
           castBallot(uid);
 
