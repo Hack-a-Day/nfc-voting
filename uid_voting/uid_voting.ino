@@ -1,20 +1,16 @@
 /**************************************************************************/
 /*! 
-    This example will attempt to connect to an ISO14443A
-    card or tag and retrieve some basic information about it
-    that can be used to determine what type of card it is.   
-   
-    Note that you need the baud rate to be 115200 because we need to print
-    out the data and read from the card at the same time!
-
-    To enable debug message, define DEBUG in PN532/PN532_debug.h
+    NTAG203 voting proof of concept
     
 */
 /**************************************************************************/
 
+//Includes used for NFC reader
 #include <SPI.h>
 #include <PN532_SPI.h>
 #include "PN532.h"
+
+#include <EEPROM.h>
 
 PN532_SPI pn532spi(SPI, 10);
 PN532 nfc(pn532spi);
@@ -31,9 +27,14 @@ uint8_t uniqueSet[21] PROGMEM= {
 
 };
 
+//Need no more than 500 booleans so just use 64 bytes
+uint8_t hasVoted[64]; 
+
 void setup(void) {
   pinMode(2, INPUT);
   digitalWrite(2, HIGH);
+  pinMode(3, INPUT);
+  digitalWrite(3, HIGH);
   
   Serial.begin(115200);
   Serial.println("Hello!");
@@ -112,6 +113,24 @@ void loop(void) {
     } 
   }
   else {
+    //Use normal voting mode
+    
+    //Test to see if jumper for EEPROM erase is in place
+    if (digitalRead(3) == LOW) {
+      //Jumper is on pin3, blank 64 bytes of EEPROM
+      Serial.println("Blanking first 64 bytes of EEPROM");
+      for (unsigned char i=0; i<64; i++) {
+        EEPROM.write(i,0x00);
+      }
+      Serial.println("EEPROM lanking done");
+    }
+    
+    //Fill hasVoted{} boolean array from EEPROM
+    for (unsigned char i=0; i<64; i++) {
+      hasVoted[i] = EEPROM.read(i);
+    }
+    
+    //Loop forever handling voting events as needed
     while(1) {
       boolean success;
       uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
@@ -124,7 +143,7 @@ void loop(void) {
       
       if (success) {
         Serial.println("Found a card!");
-        //Serial.print("UID Length: ");Serial.print(uidLength, DEC);Serial.println(" bytes");
+        //NTAG203 has 7-byte UID, ignore all others
         if (uidLength == 7) {
           Serial.print(uid[0], HEX);Serial.print(uid[1], HEX);Serial.print(uid[1], HEX);Serial.print(uid[2], HEX);Serial.print(uid[3], HEX);Serial.print(uid[4], HEX);Serial.print(uid[5], HEX);Serial.println(uid[6], HEX);
           
@@ -136,31 +155,40 @@ void loop(void) {
                 break;
               }
               if (d == 6) {
+                //Need a flag to get out of nested loops
                 found = true;
               }
             }
             if (found) {
               Serial.print(" Found at index: ");Serial.println(i);
+              
+              //This tag is a valid voting token, now make sure it hasn't already been used to vote
+              if ((1<<(i%8)) & (hasVoted[i/8])) {
+                //This tag has already voted -- VOTER FRAUD!
+                Serial.println("CHEATER -- You've already voted");
+              }
+              else {
+                //This is a valid vote
+                Serial.println("Vote has been cast.");
+                //TODO: Record votes
+                
+                //Set hasVoted bit and write to EEPROM for persistent value
+                hasVoted[i/8] |= 1<<(i%8);
+                EEPROM.write(i/8, hasVoted[i/8]);
+              }
+              //Stop searching the array because this UID was found
               break;
             }
           }
-        if (found == false) { Serial.println("Not a valid voting token");}
-          
+          if (found == false) { Serial.println("Not a valid voting token");}
+  
+          // Wait 1 second before continuing to avoid multiple reads
+          delay(1000);
         }
-        else { Serial.println("Wrong UID Length");}
-        //Serial.print("UID Value: ");
-        //for (uint8_t i=0; i < uidLength; i++) 
-        //{
-        //  Serial.print(" 0x");Serial.print(uid[i], HEX); 
-        //}
-        //Serial.println("");
-        // Wait 1 second before continuing
-        delay(1000);
-      }
-      else
-      {
-        // PN532 probably timed out waiting for a card
-        //Serial.println("Timed out waiting for a card");
+        else { 
+          Serial.println("Wrong UID Length");
+          delay(1000);
+        }
       }
     }
   }
