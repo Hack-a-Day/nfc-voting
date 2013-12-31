@@ -2,6 +2,10 @@
 /*! 
     NTAG203 voting proof of concept
     
+    NFC/NDEF Libraries:
+    https://github.com/Seeed-Studio/PN532
+    Rotary Encoder Code adapted from:
+    http://www.circuitsathome.com/mcu/rotary-encoder-interrupt-service-routine-for-avr-micros
 */
 /**************************************************************************/
 
@@ -17,7 +21,22 @@
 PN532_SPI pn532spi(SPI, 10);
 PN532 nfc(pn532spi);
 
+/* Rotary encoder */
+#define ENC_A 0
+#define ENC_B 1
+#define ENC_PORT PINC
 
+/* Atmega328 */
+/* encoder port */
+#define ENC_CTL	DDRC	//encoder port control
+#define ENC_WR	PORTC	//encoder port write	
+#define ENC_RD	PINC	//encoder port read
+#define ENC_A 0	
+#define ENC_B 1	
+
+uint8_t dial_counter;
+volatile uint8_t counter_f;
+volatile uint8_t counter_r;
 
 /* //Testing:
 unsigned int uniqueSetLen = 3;
@@ -33,17 +52,34 @@ uint8_t uniqueSet[21] PROGMEM= {
 */
 
 //Need no more than 500 booleans so just use 64 bytes
-uint8_t hasVoted[64]; 
+uint8_t hasVoted[64];
 
-void setup(void) {
+void initEncoder(void) {
+  /* Setup encoder pins as inputs */
+  ENC_WR |= (( 1<<ENC_A )|( 1<<ENC_B ));    //turn on pullups
+  PCMSK1 |= (( 1<<PCINT8 )|( 1<<PCINT9 ));  //enable encoder pins interrupt sources
+  
+  /* enable pin change interupts */
+  PCICR |= ( 1<<PCIE1 );
+  
+  dial_counter = 0;
+  counter_f = 0;
+  counter_r = 0;
+}
+
+void initJumpers(void) {
   pinMode(2, INPUT);
   digitalWrite(2, HIGH);
   pinMode(3, INPUT);
   digitalWrite(3, HIGH);
-  
+}
+
+void initSerial(void) {
   Serial.begin(115200);
   Serial.println("Hello!");
+}
 
+void initNFC(void) {
   nfc.begin();
 
   uint32_t versiondata = nfc.getFirmwareVersion();
@@ -66,6 +102,27 @@ void setup(void) {
   nfc.SAMConfig();
     
   Serial.println("Waiting for an ISO14443A card");
+}
+
+void setup(void) {
+  initSerial();
+  initEncoder();
+  initJumpers();
+  initNFC();
+}
+
+void checkEncoder(void) {
+  //FIXME: Do all this in ISR to fix latency
+  if (counter_f != 0) {
+    dial_counter += counter_f;
+    counter_f = 0;
+    Serial.println(dial_counter);
+  }
+  if (counter_r != 0) {
+    dial_counter -= counter_r;
+    counter_r = 0;
+    Serial.println(dial_counter);
+  }
 }
 
 void uid_output(void) {
@@ -176,6 +233,7 @@ void loop(void) {
     
     //Loop forever handling voting events as needed
     while(1) {
+      checkEncoder();
       boolean success;
       uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
       uint8_t uidLength;                        // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
@@ -204,5 +262,29 @@ void loop(void) {
         }
       }
     }
+  }
+}
+
+ISR(PCINT1_vect)
+{
+  static uint8_t old_AB = 3;  //lookup table index
+  static int8_t encval = 0;   //encoder value  
+  static const int8_t enc_states [] PROGMEM = {0,-1,1,0,1,0,0,-1,-1,0,0,1,0,1,-1,0};  //encoder lookup table
+  /**/
+  old_AB <<=2;  //remember previous state
+  old_AB |= ( ENC_RD & 0x03 );
+  encval += pgm_read_byte(&(enc_states[( old_AB & 0x0f )]));
+  /* post "Navigation forward/reverse" event */
+  if( encval > 3 ) {  //four steps forward
+    //QF::publish(Q_NEW(QEvent, NAV_FWD_SIG));
+    Serial.println("Up");
+    ++counter_f;
+    encval = 0;
+  }
+  else if( encval < -3 ) {  //four steps backwards
+    //QF::publish(Q_NEW(QEvent, NAV_REV_SIG));
+    Serial.println("Dn");
+    ++counter_r;
+    encval = 0;
   }
 }
