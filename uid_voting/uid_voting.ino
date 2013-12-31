@@ -16,7 +16,6 @@ PN532_SPI pn532spi(SPI, 10);
 PN532 nfc(pn532spi);
 
 unsigned int uniqueSetLen = 3;
-boolean found;
 
 uint8_t uniqueSet[21] PROGMEM= {
   0x04, 0x88, 0x78, 0xD2, 0x85, 0x32, 0x80,
@@ -103,6 +102,45 @@ void uid_output(void) {
   }
 }
 
+void castBallot(uint8_t hwID[7]) {
+  boolean found = false;
+  for (unsigned int i=0; i<uniqueSetLen; i++) {
+    for (unsigned char d=0; d<7; d++) {
+      if (hwID[d] != pgm_read_byte(uniqueSet+(7*i)+d)) {
+        //Byte doesn't match
+        break;
+      }
+      if (d == 6) {
+        //Need a flag to get out of nested loops
+        found = true;
+      }
+    }
+    if (found) {
+      Serial.print(" Found at index: ");Serial.println(i);
+      
+      //This tag is a valid voting token, now make sure it hasn't already been used to vote
+      if ((1<<(i%8)) & (hasVoted[i/8])) {
+        //This tag has already voted -- VOTER FRAUD!
+        Serial.println("CHEATER -- You've already voted");
+        return;
+      }
+      else {
+        //This is a valid vote
+        Serial.println("Vote has been cast.");
+        //TODO: Record votes
+        
+        //Set hasVoted bit and write to EEPROM for persistent value
+        hasVoted[i/8] |= 1<<(i%8);
+        EEPROM.write(i/8, hasVoted[i/8]);
+        return;
+      }      
+    }
+  }
+  //If we made it this far the UID isn't in the stored list of valid tokens
+  Serial.println("Not a valid voting token");
+  return;
+}
+
 void loop(void) {
   if (digitalRead(2) == LOW) {
     //Jumper is on pin2, enter UID output mode
@@ -147,40 +185,9 @@ void loop(void) {
         if (uidLength == 7) {
           Serial.print(uid[0], HEX);Serial.print(uid[1], HEX);Serial.print(uid[1], HEX);Serial.print(uid[2], HEX);Serial.print(uid[3], HEX);Serial.print(uid[4], HEX);Serial.print(uid[5], HEX);Serial.println(uid[6], HEX);
           
-          found = false;
-          for (unsigned int i=0; i<uniqueSetLen; i++) {
-            for (unsigned char d=0; d<7; d++) {
-              if (uid[d] != pgm_read_byte(uniqueSet+(7*i)+d)) {
-                //Byte doesn't match
-                break;
-              }
-              if (d == 6) {
-                //Need a flag to get out of nested loops
-                found = true;
-              }
-            }
-            if (found) {
-              Serial.print(" Found at index: ");Serial.println(i);
-              
-              //This tag is a valid voting token, now make sure it hasn't already been used to vote
-              if ((1<<(i%8)) & (hasVoted[i/8])) {
-                //This tag has already voted -- VOTER FRAUD!
-                Serial.println("CHEATER -- You've already voted");
-              }
-              else {
-                //This is a valid vote
-                Serial.println("Vote has been cast.");
-                //TODO: Record votes
-                
-                //Set hasVoted bit and write to EEPROM for persistent value
-                hasVoted[i/8] |= 1<<(i%8);
-                EEPROM.write(i/8, hasVoted[i/8]);
-              }
-              //Stop searching the array because this UID was found
-              break;
-            }
-          }
-          if (found == false) { Serial.println("Not a valid voting token");}
+          castBallot(uid);
+
+          
   
           // Wait 1 second before continuing to avoid multiple reads
           delay(1000);
