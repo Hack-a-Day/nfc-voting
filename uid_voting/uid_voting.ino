@@ -34,9 +34,7 @@ PN532 nfc(pn532spi);
 #define ENC_A 0	
 #define ENC_B 1	
 
-uint8_t dial_counter;
-volatile uint8_t counter_f;
-volatile uint8_t counter_r;
+volatile uint8_t selected_option = 0;
 
 /* //Testing:
 unsigned int uniqueSetLen = 3;
@@ -54,6 +52,8 @@ uint8_t uniqueSet[21] PROGMEM= {
 //Need no more than 500 booleans so just use 64 bytes
 uint8_t hasVoted[64];
 
+uint16_t ballotCount[3];
+
 void initEncoder(void) {
   /* Setup encoder pins as inputs */
   ENC_WR |= (( 1<<ENC_A )|( 1<<ENC_B ));    //turn on pullups
@@ -61,10 +61,6 @@ void initEncoder(void) {
   
   /* enable pin change interupts */
   PCICR |= ( 1<<PCIE1 );
-  
-  dial_counter = 0;
-  counter_f = 0;
-  counter_r = 0;
 }
 
 void initJumpers(void) {
@@ -111,20 +107,6 @@ void setup(void) {
   initNFC();
 }
 
-void checkEncoder(void) {
-  //FIXME: Do all this in ISR to fix latency
-  if (counter_f != 0) {
-    dial_counter += counter_f;
-    counter_f = 0;
-    Serial.println(dial_counter);
-  }
-  if (counter_r != 0) {
-    dial_counter -= counter_r;
-    counter_r = 0;
-    Serial.println(dial_counter);
-  }
-}
-
 void uid_output(void) {
   boolean success;
   uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
@@ -165,7 +147,7 @@ void uid_output(void) {
   }
 }
 
-void castBallot(uint8_t hwID[7]) {
+void castBallot(uint8_t hwID[7], uint8_t vote) {
   boolean found = false;
   for (unsigned int i=0; i<uniqueSetLen; i++) {
     for (unsigned char d=0; d<7; d++) {
@@ -190,7 +172,10 @@ void castBallot(uint8_t hwID[7]) {
       else {
         //This is a valid vote
         Serial.println("Vote has been cast.");
-        //TODO: Record votes
+        ballotCount[vote] += 1;
+        //TODO: save ballotCount to EEPROM
+        Serial.print("A: ");Serial.print(ballotCount[0]);Serial.print("B: ");Serial.print(ballotCount[1]);Serial.print("C: ");Serial.println(ballotCount[2]);
+        
         
         //Set hasVoted bit and write to EEPROM for persistent value
         hasVoted[i/8] |= 1<<(i%8);
@@ -231,9 +216,14 @@ void loop(void) {
       hasVoted[i] = EEPROM.read(i);
     }
     
+    //TODO fill ballotCount{} array from EEPROM
+    for (unsigned char i=0; i<3; i++) {
+      //TODO fill ballotCount{} array from EEPROM
+      ballotCount[i] = 0x0000; 
+    }
+    
     //Loop forever handling voting events as needed
     while(1) {
-      checkEncoder();
       boolean success;
       uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
       uint8_t uidLength;                        // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
@@ -249,7 +239,7 @@ void loop(void) {
         if (uidLength == 7) {
           Serial.print(uid[0], HEX);Serial.print(uid[1], HEX);Serial.print(uid[2], HEX);Serial.print(uid[3], HEX);Serial.print(uid[4], HEX);Serial.print(uid[5], HEX);Serial.println(uid[6], HEX);
           
-          castBallot(uid);
+          castBallot(uid, selected_option);
 
           
   
@@ -265,6 +255,15 @@ void loop(void) {
   }
 }
 
+void incSelOpt(void) {
+  if (++selected_option > 2) { selected_option = 0; }
+}
+
+void decSelOpt(void) {
+  //Postfix checks before decrement
+  if (selected_option-- == 0 ) { selected_option = 2; }
+}
+
 ISR(PCINT1_vect)
 {
   static uint8_t old_AB = 3;  //lookup table index
@@ -276,15 +275,13 @@ ISR(PCINT1_vect)
   encval += pgm_read_byte(&(enc_states[( old_AB & 0x0f )]));
   /* post "Navigation forward/reverse" event */
   if( encval > 3 ) {  //four steps forward
-    //QF::publish(Q_NEW(QEvent, NAV_FWD_SIG));
-    Serial.println("Up");
-    ++counter_f;
+    incSelOpt();
+    Serial.print("Up ");Serial.println(selected_option);
     encval = 0;
   }
   else if( encval < -3 ) {  //four steps backwards
-    //QF::publish(Q_NEW(QEvent, NAV_REV_SIG));
-    Serial.println("Dn");
-    ++counter_r;
+    incSelOpt();
+    Serial.print("Dn ");Serial.println(selected_option);
     encval = 0;
   }
 }
