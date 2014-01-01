@@ -6,6 +6,8 @@
     https://github.com/Seeed-Studio/PN532
     Rotary Encoder Code adapted from:
     http://www.circuitsathome.com/mcu/rotary-encoder-interrupt-service-routine-for-avr-micros
+    Piezo Buzzer adapted from:
+    http://arduino.cc/en/Tutorial/Tone  
 */
 /**************************************************************************/
 
@@ -14,7 +16,7 @@
 #include <PN532_SPI.h>
 #include "PN532.h"
 
-#include <EEPROM.h>
+#include <avr/eeprom.h>
 
 #include "/home/mike/compile/nfc-voting/uid_voting/uniqueSet.h"
 
@@ -54,6 +56,9 @@ uint8_t hasVoted[64];
 
 uint16_t ballotCount[3];
 
+/********************************
+  Initialize the pin change interrupt for the rotary encoder
+********************************/
 void initEncoder(void) {
   /* Setup encoder pins as inputs */
   ENC_WR |= (( 1<<ENC_A )|( 1<<ENC_B ));    //turn on pullups
@@ -63,6 +68,9 @@ void initEncoder(void) {
   PCICR |= ( 1<<PCIE1 );
 }
 
+/********************************
+  Initialize pins for use as jumpers
+********************************/
 void initJumpers(void) {
   pinMode(2, INPUT);
   digitalWrite(2, HIGH);
@@ -70,11 +78,17 @@ void initJumpers(void) {
   digitalWrite(3, HIGH);
 }
 
+/********************************
+  Initialize serial terminal output
+********************************/
 void initSerial(void) {
   Serial.begin(115200);
   Serial.println("Hello!");
 }
 
+/********************************
+  Initialize the PN532 NFC reader
+********************************/
 void initNFC(void) {
   nfc.begin();
 
@@ -100,13 +114,13 @@ void initNFC(void) {
   Serial.println("Waiting for an ISO14443A card");
 }
 
-void setup(void) {
-  initSerial();
-  initEncoder();
-  initJumpers();
-  initNFC();
-}
-
+/********************************
+  uid_output is used to read in the UID of NTAG203 tags
+  
+  one C Header formatted line will be printed to the
+    terminal for each tag that is read. This is the
+    technique used to generate the uniqueSet.h file
+********************************/
 void uid_output(void) {
   boolean success;
   uint8_t uid[] = { 0, 0, 0, 0, 0, 0, 0 };  // Buffer to store the returned UID
@@ -147,6 +161,22 @@ void uid_output(void) {
   }
 }
 
+/********************************
+  prints vote count to the terminal
+********************************/
+void printTally(void) {
+  Serial.print("A: ");Serial.print(ballotCount[0]);Serial.print(" B: ");Serial.print(ballotCount[1]);Serial.print(" C: ");Serial.println(ballotCount[2]);
+}
+
+/********************************
+  This function is called whenever a 7-byte UID is read
+  
+  -Checks to make sure UID is in the uniqueSet.h file
+  -Uses index from the header file entry to verify
+    the tag has not already voted using EEPROM array
+  -If this is a valid ballot it updates the EEPROM
+    array as well as EEPROM ballot total
+********************************/
 void castBallot(uint8_t hwID[7], uint8_t vote) {
   boolean found = false;
   for (unsigned int i=0; i<uniqueSetLen; i++) {
@@ -174,12 +204,12 @@ void castBallot(uint8_t hwID[7], uint8_t vote) {
         Serial.println("Vote has been cast.");
         ballotCount[vote] += 1;
         //TODO: save ballotCount to EEPROM
-        Serial.print("A: ");Serial.print(ballotCount[0]);Serial.print("B: ");Serial.print(ballotCount[1]);Serial.print("C: ");Serial.println(ballotCount[2]);
-        
+        eeprom_write_word((uint16_t*)(64 + (2*vote)), ballotCount[vote]);
+        printTally();        
         
         //Set hasVoted bit and write to EEPROM for persistent value
         hasVoted[i/8] |= 1<<(i%8);
-        EEPROM.write(i/8, hasVoted[i/8]);
+        eeprom_write_byte((uint8_t*)(i/8), hasVoted[i/8]);
         return;
       }      
     }
@@ -189,6 +219,54 @@ void castBallot(uint8_t hwID[7], uint8_t vote) {
   return;
 }
 
+/********************************
+  Called if a jumper is shorted to ground
+  
+  Writes zeros to EEPROM for voting array
+    as well as ballot totals
+********************************/
+void zeroEEPROM(void) {
+  Serial.println("Blanking first 64 bytes of EEPROM");
+  //Zero out space for tracking used token index
+  for (uint8_t i=0; i<64; i++) {
+    eeprom_write_byte((uint8_t*)i,0x00);
+  }
+  //Zero out space for tallying the ballots
+  //Address 64 if the first free area after the token index array
+  eeprom_write_word((uint16_t*)(64), 0x00);
+  eeprom_write_word((uint16_t*)(66), 0x00);
+  eeprom_write_word((uint16_t*)(68), 0x00);
+  Serial.println("EEPROM blanking done");
+}
+
+/********************************
+  Fill arrays in RAM from EEPROM values
+********************************/
+void fillArrays(void) {
+  //Fill hasVoted{} boolean array from EEPROM
+  for (unsigned char i=0; i<64; i++) {
+    hasVoted[i] = eeprom_read_byte((uint8_t*)i);
+  }
+  
+  //Fill ballotCount{} array from EEPROM
+  for (unsigned char i=0; i<3; i++) {
+    ballotCount[i] = eeprom_read_word((uint16_t*)(64 + (2*i)));; 
+  }
+}
+
+/********************************
+  Setup Function
+********************************/
+void setup(void) {
+  initSerial();
+  initEncoder();
+  initJumpers();
+  initNFC();
+}
+
+/********************************
+  Main function
+********************************/
 void loop(void) {
   if (digitalRead(2) == LOW) {
     //Jumper is on pin2, enter UID output mode
@@ -204,23 +282,11 @@ void loop(void) {
     //Test to see if jumper for EEPROM erase is in place
     if (digitalRead(3) == LOW) {
       //Jumper is on pin3, blank 64 bytes of EEPROM
-      Serial.println("Blanking first 64 bytes of EEPROM");
-      for (unsigned char i=0; i<64; i++) {
-        EEPROM.write(i,0x00);
-      }
-      Serial.println("EEPROM lanking done");
+      zeroEEPROM();
     }
     
-    //Fill hasVoted{} boolean array from EEPROM
-    for (unsigned char i=0; i<64; i++) {
-      hasVoted[i] = EEPROM.read(i);
-    }
-    
-    //TODO fill ballotCount{} array from EEPROM
-    for (unsigned char i=0; i<3; i++) {
-      //TODO fill ballotCount{} array from EEPROM
-      ballotCount[i] = 0x0000; 
-    }
+    fillArrays();
+    printTally();
     
     //Loop forever handling voting events as needed
     while(1) {
@@ -255,15 +321,24 @@ void loop(void) {
   }
 }
 
+/********************************
+  Increments the voting selection
+********************************/
 void incSelOpt(void) {
   if (++selected_option > 2) { selected_option = 0; }
 }
 
+/********************************
+  Decrements the voting selection
+********************************/
 void decSelOpt(void) {
   //Postfix checks before decrement
   if (selected_option-- == 0 ) { selected_option = 2; }
 }
 
+/********************************
+  Pin Change interrupt service handler used for rotary encoder
+********************************/
 ISR(PCINT1_vect)
 {
   static uint8_t old_AB = 3;  //lookup table index
@@ -280,7 +355,7 @@ ISR(PCINT1_vect)
     encval = 0;
   }
   else if( encval < -3 ) {  //four steps backwards
-    incSelOpt();
+    decSelOpt();
     Serial.print("Dn ");Serial.println(selected_option);
     encval = 0;
   }
