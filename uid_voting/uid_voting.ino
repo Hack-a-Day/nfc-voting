@@ -12,6 +12,7 @@
 /**************************************************************************/
 
 //*******************MISC Settings*************
+#include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include "/home/mike/compile/nfc-voting/uid_voting/uniqueSet.h"
 
@@ -62,7 +63,20 @@ volatile uint8_t selected_option = 0;
 //***************End Rotary Encoder Settings*************
 
 //*******************Tone Settings*************
+#include "/home/mike/compile/nfc-voting/uid_voting/pitches.h"
+#define PIEZO_PIN 9
 
+// success melody:
+uint16_t melody_success[] = { NOTE_G5, NOTE_G5, NOTE_G5, NOTE_D6 };
+uint8_t duration_success[] = { 4, 8, 8, 4 }; // note durations: 4 = quarter note, 8 = eighth note, etc.:
+const uint16_t size_success = sizeof(duration_success);
+
+// failure melody:
+uint16_t melody_failure[] = { NOTE_G2, NOTE_A2, NOTE_AS2, NOTE_G2};
+uint8_t duration_failure[] = { 2, 4, 2, 2 }; // note durations: 4 = quarter note, 8 = eighth note, etc.:
+const uint16_t size_failure = sizeof(duration_success);
+
+const float delayConstant = 1.30;
 //***************End Tone Settings*************
 
 //*******************HD44780 Settings*************
@@ -105,6 +119,14 @@ void initSerial(void) {
 }
 
 /********************************
+  Initialize pin for piezo buzzer
+********************************/
+void initTone(void) {
+  pinMode(PIEZO_PIN, OUTPUT);
+  digitalWrite(PIEZO_PIN, LOW);
+}
+
+/********************************
   Initialize the PN532 NFC reader
 ********************************/
 void initNFC(void) {
@@ -130,6 +152,31 @@ void initNFC(void) {
   nfc.SAMConfig();
     
   Serial.println("Waiting for an ISO14443A card");
+}
+
+/********************************
+  plays a tone based on note array, duration array, and length passed in to function
+********************************/
+void playMelody(uint16_t *notes, uint8_t *duration, uint16_t len) {
+  for (int thisNote = 0; thisNote < len; thisNote++) {
+
+    // to calculate the note duration, take one second 
+    // divided by the note type.
+    //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+    int noteDuration = 600/duration[thisNote];
+
+    // Make last not twice as long without break in middle. 
+    if (thisNote == (len - 1 ) )
+    {
+      noteDuration *=2;
+    }   
+    tone(PIEZO_PIN, notes[thisNote],noteDuration);
+
+    // to distinguish the notes, set a minimum time between them.
+    // the note's duration + 30% seems to work well:
+    int pauseBetweenNotes = noteDuration*delayConstant;
+    delay(pauseBetweenNotes); 
+  }
 }
 
 /********************************
@@ -161,7 +208,8 @@ void uid_output(void) {
       }
       Serial.println("");      
     }
-    //TODO: Insert beep here
+    //Beep to indicate tag was read
+    tone(PIEZO_PIN, NOTE_G5, 180);
     
     //Serial.print("UID Value: ");
     //for (uint8_t i=0; i < uidLength; i++) 
@@ -215,14 +263,18 @@ void castBallot(uint8_t hwID[7], uint8_t vote) {
       if ((1<<(i%8)) & (hasVoted[i/8])) {
         //This tag has already voted -- VOTER FRAUD!
         Serial.println("CHEATER -- You've already voted");
+        playMelody(melody_failure, duration_failure, size_failure);
         return;
       }
       else {
         //This is a valid vote
         Serial.println("Vote has been cast.");
         ballotCount[vote] += 1;
-        //TODO: save ballotCount to EEPROM
+        //Save ballotCount to EEPROM
         eeprom_write_word((uint16_t*)(64 + (2*vote)), ballotCount[vote]);
+        
+        //Give feedback
+        playMelody(melody_success, duration_success, size_success);
         printTally();        
         
         //Set hasVoted bit and write to EEPROM for persistent value
@@ -291,7 +343,6 @@ void loop(void) {
     Serial.println("UID output mode:");
     while(1) {
       uid_output();
-      delay(1000);
     } 
   }
   else {
