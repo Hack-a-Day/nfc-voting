@@ -11,18 +11,40 @@
 */
 /**************************************************************************/
 
-//Includes used for NFC reader
+//*******************MISC Settings*************
+#include <avr/eeprom.h>
+#include "/home/mike/compile/nfc-voting/uid_voting/uniqueSet.h"
+
+//Need no more than 500 booleans so just use 64 bytes
+uint8_t hasVoted[64];
+
+uint16_t ballotCount[3];
+
+/* //Testing:
+unsigned int uniqueSetLen = 3;
+
+uint8_t uniqueSet[21] PROGMEM= {
+  0x04, 0x88, 0x78, 0xD2, 0x85, 0x32, 0x80,
+
+  0x04, 0x8D, 0x78, 0xD2, 0x85, 0x32, 0x80,
+
+  0x04, 0x81, 0x78, 0xD2, 0x85, 0x32, 0x80,
+
+};
+*/
+//***************End MISC Settings*************
+
+//*******************NFC Reader Settings*************
 #include <SPI.h>
 #include <PN532_SPI.h>
 #include "PN532.h"
 
-#include <avr/eeprom.h>
-
-#include "/home/mike/compile/nfc-voting/uid_voting/uniqueSet.h"
-
 PN532_SPI pn532spi(SPI, 10);
 PN532 nfc(pn532spi);
+//***************End NFC Reader Settings*************
 
+
+//*******************Rotary Encoder Settings*************
 /* Rotary encoder */
 #define ENC_A 0
 #define ENC_B 1
@@ -37,24 +59,20 @@ PN532 nfc(pn532spi);
 #define ENC_B 1	
 
 volatile uint8_t selected_option = 0;
+//***************End Rotary Encoder Settings*************
 
-/* //Testing:
-unsigned int uniqueSetLen = 3;
+//*******************Tone Settings*************
 
-uint8_t uniqueSet[21] PROGMEM= {
-  0x04, 0x88, 0x78, 0xD2, 0x85, 0x32, 0x80,
+//***************End Tone Settings*************
 
-  0x04, 0x8D, 0x78, 0xD2, 0x85, 0x32, 0x80,
+//*******************HD44780 Settings*************
 
-  0x04, 0x81, 0x78, 0xD2, 0x85, 0x32, 0x80,
+//***************End HD44780 Settings*************
 
-};
-*/
+//*******************LED Settings*************
 
-//Need no more than 500 booleans so just use 64 bytes
-uint8_t hasVoted[64];
+//***************End LED Settings*************
 
-uint16_t ballotCount[3];
 
 /********************************
   Initialize the pin change interrupt for the rotary encoder
