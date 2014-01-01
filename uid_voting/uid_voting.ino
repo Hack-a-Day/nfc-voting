@@ -286,6 +286,7 @@ void castBallot(uint8_t hwID[7], uint8_t vote) {
   }
   //If we made it this far the UID isn't in the stored list of valid tokens
   Serial.println("Not a valid voting token");
+  playMelody(melody_failure, duration_failure, size_failure);
   return;
 }
 
