@@ -266,10 +266,19 @@ void uid_output(void) {
 }
 
 /********************************
-  prints vote count to the terminal
+  prints vote count to the terminal and on LCD Screen
 ********************************/
 void printTally(void) {
   Serial.print("A: ");Serial.print(ballotCount[0]);Serial.print(" B: ");Serial.print(ballotCount[1]);Serial.print(" C: ");Serial.println(ballotCount[2]);
+  lcd.setCursor(0,2);
+  lcd.print("Ballot Count:");
+  lcd.setCursor(0,3);
+  lcd.print("A: ");
+  lcd.print(ballotCount[0]);
+  lcd.print("  B: ");
+  lcd.print(ballotCount[1]);
+  lcd.print("  C: ");
+  lcd.print(ballotCount[2]);
 }
 
 /********************************
