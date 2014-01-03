@@ -1,0 +1,740 @@
+EESchema Schematic File Version 2
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:special
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+EELAYER 24 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L ATMEGA328-P IC?
+U 1 1 52C70F6F
+P 3350 2600
+F 0 "IC?" H 2600 3850 40  0000 L BNN
+F 1 "ATMEGA328-P" H 3750 1200 40  0000 L BNN
+F 2 "DIL28" H 3350 2600 30  0000 C CIN
+F 3 "" H 3350 2600 60  0000 C CNN
+	1    3350 2600
+	1    0    0    -1  
+$EndComp
+$Comp
+L CONN_8 PN532_Breakout
+U 1 1 52C7102B
+P 8650 2500
+F 0 "PN532_Breakout" V 8600 2500 60  0000 C CNN
+F 1 "CONN_8" V 8700 2500 60  0000 C CNN
+F 2 "" H 8650 2500 60  0000 C CNN
+F 3 "" H 8650 2500 60  0000 C CNN
+	1    8650 2500
+	1    0    0    -1  
+$EndComp
+Text GLabel 7750 2250 0    60   Input ~ 0
+NFC_IRQ
+Text GLabel 7750 2400 0    60   Input ~ 0
+NFC_SCL
+Text GLabel 7750 2550 0    60   Input ~ 0
+NFC_MOSI
+Text GLabel 7750 2700 0    60   Input ~ 0
+NFC_MISO
+Text GLabel 7750 2850 0    60   Input ~ 0
+NFC_SCK
+Text GLabel 7750 3000 0    60   Input ~ 0
+NFC_RSTOUT
+Wire Wire Line
+	8300 2250 7750 2250
+Text Label 8050 2250 0    60   ~ 0
+NC
+Wire Wire Line
+	8300 2350 7900 2350
+Wire Wire Line
+	7900 2350 7900 2400
+Wire Wire Line
+	7900 2400 7750 2400
+Wire Wire Line
+	8300 2450 7950 2450
+Wire Wire Line
+	7950 2450 7950 2550
+Wire Wire Line
+	7950 2550 7750 2550
+Wire Wire Line
+	8300 2550 8050 2550
+Wire Wire Line
+	8050 2550 8050 2700
+Wire Wire Line
+	8050 2700 7750 2700
+Wire Wire Line
+	8300 2650 8100 2650
+Wire Wire Line
+	8100 2650 8100 2850
+Wire Wire Line
+	8100 2850 7750 2850
+Wire Wire Line
+	8300 2750 8150 2750
+Wire Wire Line
+	8150 2750 8150 3000
+Wire Wire Line
+	8150 3000 7750 3000
+Text Label 7900 3000 0    60   ~ 0
+NC
+$Comp
+L +5V #PWR?
+U 1 1 52C71139
+P 8500 3200
+F 0 "#PWR?" H 8500 3290 20  0001 C CNN
+F 1 "+5V" H 8500 3290 30  0000 C CNN
+F 2 "" H 8500 3200 60  0000 C CNN
+F 3 "" H 8500 3200 60  0000 C CNN
+	1    8500 3200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8300 2850 8300 3350
+Wire Wire Line
+	8300 3350 8500 3350
+Wire Wire Line
+	8500 3350 8500 3200
+$Comp
+L GND #PWR?
+U 1 1 52C7115A
+P 8650 1900
+F 0 "#PWR?" H 8650 1900 30  0001 C CNN
+F 1 "GND" H 8650 1830 30  0001 C CNN
+F 2 "" H 8650 1900 60  0000 C CNN
+F 3 "" H 8650 1900 60  0000 C CNN
+	1    8650 1900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8300 2150 8300 1700
+Wire Wire Line
+	8300 1700 8650 1700
+Wire Wire Line
+	8650 1700 8650 1900
+Text Notes 7100 1750 0    60   ~ 0
+NFC Reader
+Wire Notes Line
+	6950 1600 9000 1600
+Wire Notes Line
+	9000 1600 9000 3450
+Wire Notes Line
+	9000 3450 6950 3450
+Wire Notes Line
+	6950 3450 6950 1600
+$Comp
+L CONN_3 K?
+U 1 1 52C711C7
+P 8650 4100
+F 0 "K?" V 8600 4100 50  0000 C CNN
+F 1 "CONN_3" V 8700 4100 40  0000 C CNN
+F 2 "" H 8650 4100 60  0000 C CNN
+F 3 "" H 8650 4100 60  0000 C CNN
+	1    8650 4100
+	1    0    0    -1  
+$EndComp
+Text GLabel 7900 4000 0    60   Input ~ 0
+ROTARY_A
+Text GLabel 8150 4200 0    60   Input ~ 0
+ROTARY_B
+$Comp
+L GND #PWR?
+U 1 1 52C711F1
+P 7450 4350
+F 0 "#PWR?" H 7450 4350 30  0001 C CNN
+F 1 "GND" H 7450 4280 30  0001 C CNN
+F 2 "" H 7450 4350 60  0000 C CNN
+F 3 "" H 7450 4350 60  0000 C CNN
+	1    7450 4350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7900 4000 8300 4000
+Wire Wire Line
+	8300 4100 7450 4100
+Wire Wire Line
+	7450 4100 7450 4350
+Wire Wire Line
+	8150 4200 8300 4200
+Text Notes 7450 3850 0    60   ~ 0
+Rotary Encoder
+Wire Notes Line
+	7350 3650 8900 3650
+Wire Notes Line
+	8900 3650 8900 4600
+Wire Notes Line
+	8900 4600 7350 4600
+Wire Notes Line
+	7350 4600 7350 3650
+Text GLabel 5250 1700 2    60   Input ~ 0
+NFC_SCL
+Text GLabel 5250 1850 2    60   Input ~ 0
+NFC_MOSI
+Text GLabel 5250 2000 2    60   Input ~ 0
+NFC_MISO
+Text GLabel 5250 2150 2    60   Input ~ 0
+NFC_SCK
+Wire Wire Line
+	4350 1700 5250 1700
+Wire Wire Line
+	5250 1850 4550 1850
+Wire Wire Line
+	4550 1850 4550 1800
+Wire Wire Line
+	4550 1800 4350 1800
+Wire Wire Line
+	5250 2000 4500 2000
+Wire Wire Line
+	4500 2000 4500 1900
+Wire Wire Line
+	4500 1900 4350 1900
+Wire Wire Line
+	5250 2150 4450 2150
+Wire Wire Line
+	4450 2150 4450 2000
+Wire Wire Line
+	4450 2000 4350 2000
+Text Label 4800 1700 0    60   ~ 0
+Pin10
+Text Label 4800 1850 0    60   ~ 0
+Pin11
+Text Label 4800 2000 0    60   ~ 0
+Pin12
+Text Label 4800 2150 0    60   ~ 0
+Pin13
+Text GLabel 5250 2350 2    60   Input ~ 0
+ROTARY_A
+Text GLabel 5250 2500 2    60   Input ~ 0
+ROTARY_B
+Wire Wire Line
+	4350 2350 5250 2350
+Wire Wire Line
+	5250 2500 4600 2500
+Wire Wire Line
+	4600 2500 4600 2450
+Wire Wire Line
+	4600 2450 4350 2450
+Text Label 4800 2350 0    60   ~ 0
+Analog0
+Text Label 4800 2500 0    60   ~ 0
+Analog1
+$Comp
+L GND #PWR?
+U 1 1 52C7172C
+P 2300 4050
+F 0 "#PWR?" H 2300 4050 30  0001 C CNN
+F 1 "GND" H 2300 3980 30  0001 C CNN
+F 2 "" H 2300 4050 60  0000 C CNN
+F 3 "" H 2300 4050 60  0000 C CNN
+	1    2300 4050
+	1    0    0    -1  
+$EndComp
+$Comp
+L +5V #PWR?
+U 1 1 52C71732
+P 2250 1250
+F 0 "#PWR?" H 2250 1340 20  0001 C CNN
+F 1 "+5V" H 2250 1340 30  0000 C CNN
+F 2 "" H 2250 1250 60  0000 C CNN
+F 3 "" H 2250 1250 60  0000 C CNN
+	1    2250 1250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2250 1250 2250 1800
+Wire Wire Line
+	2250 1800 2450 1800
+Wire Wire Line
+	2450 1500 2250 1500
+Connection ~ 2250 1500
+Wire Wire Line
+	2450 3700 2300 3700
+Wire Wire Line
+	2300 3700 2300 4050
+Wire Wire Line
+	2450 3800 2300 3800
+Connection ~ 2300 3800
+$Comp
+L CONN_2 P?
+U 1 1 52C7180A
+P 8650 5100
+F 0 "P?" V 8600 5100 40  0000 C CNN
+F 1 "CONN_2" V 8700 5100 40  0000 C CNN
+F 2 "" H 8650 5100 60  0000 C CNN
+F 3 "" H 8650 5100 60  0000 C CNN
+	1    8650 5100
+	1    0    0    -1  
+$EndComp
+Text GLabel 8000 5000 0    60   Input ~ 0
+PIEZO
+$Comp
+L GND #PWR?
+U 1 1 52C71817
+P 8100 5400
+F 0 "#PWR?" H 8100 5400 30  0001 C CNN
+F 1 "GND" H 8100 5330 30  0001 C CNN
+F 2 "" H 8100 5400 60  0000 C CNN
+F 3 "" H 8100 5400 60  0000 C CNN
+	1    8100 5400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8300 5200 8100 5200
+Wire Wire Line
+	8100 5200 8100 5400
+Wire Wire Line
+	8000 5000 8300 5000
+Text Notes 7850 4850 0    60   ~ 0
+Piezo Buzzer
+Wire Notes Line
+	7550 4750 8900 4750
+Wire Notes Line
+	8900 4750 8900 5550
+Wire Notes Line
+	8900 5550 7550 5550
+Wire Notes Line
+	7550 5550 7550 4750
+$Comp
+L GND #PWR?
+U 1 1 52C71C9A
+P 3850 4600
+F 0 "#PWR?" H 3850 4600 30  0001 C CNN
+F 1 "GND" H 3850 4530 30  0001 C CNN
+F 2 "" H 3850 4600 60  0000 C CNN
+F 3 "" H 3850 4600 60  0000 C CNN
+	1    3850 4600
+	1    0    0    -1  
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 52C71CA0
+P 3600 6700
+F 0 "#PWR?" H 3600 6700 30  0001 C CNN
+F 1 "GND" H 3600 6630 30  0001 C CNN
+F 2 "" H 3600 6700 60  0000 C CNN
+F 3 "" H 3600 6700 60  0000 C CNN
+	1    3600 6700
+	1    0    0    -1  
+$EndComp
+$Comp
+L +5V #PWR?
+U 1 1 52C71CA6
+P 3350 4600
+F 0 "#PWR?" H 3350 4690 20  0001 C CNN
+F 1 "+5V" H 3350 4690 30  0000 C CNN
+F 2 "" H 3350 4600 60  0000 C CNN
+F 3 "" H 3350 4600 60  0000 C CNN
+	1    3350 4600
+	1    0    0    -1  
+$EndComp
+$Comp
+L +5V #PWR?
+U 1 1 52C71CAC
+P 3300 6600
+F 0 "#PWR?" H 3300 6690 20  0001 C CNN
+F 1 "+5V" H 3300 6690 30  0000 C CNN
+F 2 "" H 3300 6600 60  0000 C CNN
+F 3 "" H 3300 6600 60  0000 C CNN
+	1    3300 6600
+	1    0    0    -1  
+$EndComp
+Text GLabel 3250 5150 0    60   Input ~ 0
+LCD_RS
+Text GLabel 3250 5450 0    60   Input ~ 0
+LCD_E
+Text GLabel 3250 5750 0    60   Input ~ 0
+LCD_DB4
+Text GLabel 3250 5900 0    60   Input ~ 0
+LCD_DB5
+Text GLabel 3250 6050 0    60   Input ~ 0
+LCD_DB6
+Text GLabel 3250 6200 0    60   Input ~ 0
+LCD_DB7
+$Comp
+L GND #PWR?
+U 1 1 52C71CB3
+P 2600 5450
+F 0 "#PWR?" H 2600 5450 30  0001 C CNN
+F 1 "GND" H 2600 5380 30  0001 C CNN
+F 2 "" H 2600 5450 60  0000 C CNN
+F 3 "" H 2600 5450 60  0000 C CNN
+	1    2600 5450
+	1    0    0    -1  
+$EndComp
+Text Label 2650 5350 0    60   ~ 0
+LCD_RW
+$Comp
+L CONN_16 P?
+U 1 1 52C71C7E
+P 4050 5650
+F 0 "P?" V 4010 5650 60  0000 C CNN
+F 1 "CONN_16" V 4130 5650 60  0000 C CNN
+F 2 "" H 4050 5650 60  0000 C CNN
+F 3 "" H 4050 5650 60  0000 C CNN
+	1    4050 5650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2650 5050 3700 5050
+Wire Wire Line
+	3250 5150 3700 5150
+Wire Wire Line
+	3700 5250 3450 5250
+Wire Wire Line
+	3450 5250 3450 5350
+Wire Wire Line
+	3450 5350 2500 5350
+Wire Wire Line
+	2600 5350 2600 5450
+Wire Wire Line
+	3700 5350 3500 5350
+Wire Wire Line
+	3500 5350 3500 5450
+Wire Wire Line
+	3500 5450 3250 5450
+Wire Wire Line
+	3600 5750 3250 5750
+Wire Wire Line
+	3550 5900 3250 5900
+Wire Wire Line
+	3250 6050 3700 6050
+Wire Wire Line
+	3350 6200 3250 6200
+Wire Wire Line
+	3700 5850 3600 5850
+Wire Wire Line
+	3600 5850 3600 5750
+Wire Wire Line
+	3550 5900 3550 5950
+Wire Wire Line
+	3550 5950 3700 5950
+Wire Wire Line
+	3700 6150 3350 6150
+Wire Wire Line
+	3350 6150 3350 6200
+Wire Wire Line
+	3700 6250 3400 6250
+Wire Wire Line
+	3400 6250 3400 6700
+Wire Wire Line
+	3400 6700 3300 6700
+Wire Wire Line
+	3300 6700 3300 6600
+Wire Wire Line
+	3700 6350 3600 6350
+Wire Wire Line
+	3600 6350 3600 6700
+Text Label 3650 6550 0    60   ~ 0
+LCD_K
+Text Label 3100 6400 0    60   ~ 0
+LCD_A
+Wire Wire Line
+	3700 4850 3550 4850
+Wire Wire Line
+	3550 4850 3550 4500
+Wire Wire Line
+	3550 4500 3850 4500
+Wire Wire Line
+	3850 4500 3850 4600
+Wire Wire Line
+	3700 4950 3350 4950
+Wire Wire Line
+	3350 4950 3350 4600
+Text Label 3400 4950 0    60   ~ 0
+VDD
+Text Label 3550 4700 0    60   ~ 0
+VSS
+Text Notes 2650 4600 0    60   ~ 0
+HD44780\nCharacter LCD
+Wire Notes Line
+	2350 4450 4400 4450
+Wire Notes Line
+	4400 4450 4400 6800
+Wire Notes Line
+	4400 6800 2350 6800
+Wire Notes Line
+	2350 6800 2350 4450
+Text GLabel 5350 3500 2    60   Input ~ 0
+LCD_RS
+Text GLabel 5350 3650 2    60   Input ~ 0
+LCD_E
+Text GLabel 5350 3800 2    60   Input ~ 0
+LCD_DB4
+Text GLabel 5350 3950 2    60   Input ~ 0
+LCD_DB5
+Text GLabel 5250 1400 2    60   Input ~ 0
+LCD_DB6
+Text GLabel 5250 1550 2    60   Input ~ 0
+PIEZO
+Text GLabel 5250 2650 2    60   Input ~ 0
+LCD_DB7
+Wire Wire Line
+	4350 2550 4550 2550
+Wire Wire Line
+	4550 2550 4550 2650
+Wire Wire Line
+	4550 2650 5250 2650
+Text Label 4800 2650 0    60   ~ 0
+Analog2
+Wire Wire Line
+	5350 3500 4350 3500
+Wire Wire Line
+	5350 3650 5300 3650
+Wire Wire Line
+	5300 3650 5300 3600
+Wire Wire Line
+	5300 3600 4350 3600
+Wire Wire Line
+	5350 3800 5250 3800
+Wire Wire Line
+	5250 3800 5250 3700
+Wire Wire Line
+	5250 3700 4350 3700
+Wire Wire Line
+	5300 3950 5150 3950
+Wire Wire Line
+	5150 3950 5150 3800
+Wire Wire Line
+	5150 3800 4350 3800
+Text Label 4800 3500 0    60   ~ 0
+Pin4
+Text Label 4800 3600 0    60   ~ 0
+Pin5
+Text Label 4800 3700 0    60   ~ 0
+Pin6
+Text Label 4800 3800 0    60   ~ 0
+Pin7
+Wire Wire Line
+	5250 1550 4500 1550
+Wire Wire Line
+	4500 1550 4500 1600
+Wire Wire Line
+	4500 1600 4350 1600
+Wire Wire Line
+	5250 1400 4450 1400
+Wire Wire Line
+	4450 1400 4450 1500
+Wire Wire Line
+	4450 1500 4350 1500
+Text Label 4800 1400 0    60   ~ 0
+Pin8
+Text Label 4800 1550 0    60   ~ 0
+Pin9
+$Comp
+L POT RV?
+U 1 1 52C72B0C
+P 2500 5050
+F 0 "RV?" H 2500 4950 50  0000 C CNN
+F 1 "POT" H 2500 5050 50  0000 C CNN
+F 2 "" H 2500 5050 60  0000 C CNN
+F 3 "" H 2500 5050 60  0000 C CNN
+	1    2500 5050
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2500 5350 2500 5300
+Connection ~ 2600 5350
+$Comp
+L +5V #PWR?
+U 1 1 52C72C0C
+P 2500 4700
+F 0 "#PWR?" H 2500 4790 20  0001 C CNN
+F 1 "+5V" H 2500 4790 30  0000 C CNN
+F 2 "" H 2500 4700 60  0000 C CNN
+F 3 "" H 2500 4700 60  0000 C CNN
+	1    2500 4700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2500 4700 2500 4800
+Text Label 2750 5050 0    60   ~ 0
+LCD_V0
+Text GLabel 5350 3350 2    60   Input ~ 0
+JUMPER_EEPROM
+Text GLabel 5350 3200 2    60   Input ~ 0
+JUMPER_UID_DUMP
+Wire Wire Line
+	4350 3400 5250 3400
+Wire Wire Line
+	5250 3400 5250 3350
+Wire Wire Line
+	5250 3350 5350 3350
+Wire Wire Line
+	5350 3200 5200 3200
+Wire Wire Line
+	5200 3200 5200 3300
+Wire Wire Line
+	5200 3300 4350 3300
+Text Label 4800 3400 0    60   ~ 0
+Pin3
+Text Label 4800 3300 0    60   ~ 0
+Pin2
+NoConn ~ 3700 5450
+NoConn ~ 3700 5550
+NoConn ~ 3700 5650
+NoConn ~ 3700 5750
+NoConn ~ 4350 3100
+NoConn ~ 4350 3200
+Text Notes 4450 3100 0    60   ~ 0
+Pin0, Pin1 USB UART
+$Comp
+L LED D?
+U 1 1 52C72E0D
+P 5800 4750
+F 0 "D?" H 5800 4850 50  0000 C CNN
+F 1 "LED" H 5800 4650 50  0000 C CNN
+F 2 "" H 5800 4750 60  0000 C CNN
+F 3 "" H 5800 4750 60  0000 C CNN
+	1    5800 4750
+	1    0    0    -1  
+$EndComp
+$Comp
+L LED D?
+U 1 1 52C72E1A
+P 5800 5050
+F 0 "D?" H 5800 5150 50  0000 C CNN
+F 1 "LED" H 5800 4950 50  0000 C CNN
+F 2 "" H 5800 5050 60  0000 C CNN
+F 3 "" H 5800 5050 60  0000 C CNN
+	1    5800 5050
+	1    0    0    -1  
+$EndComp
+$Comp
+L LED D?
+U 1 1 52C72E20
+P 5800 5350
+F 0 "D?" H 5800 5450 50  0000 C CNN
+F 1 "LED" H 5800 5250 50  0000 C CNN
+F 2 "" H 5800 5350 60  0000 C CNN
+F 3 "" H 5800 5350 60  0000 C CNN
+	1    5800 5350
+	1    0    0    -1  
+$EndComp
+$Comp
+L R R?
+U 1 1 52C72E28
+P 6400 4750
+F 0 "R?" V 6480 4750 40  0000 C CNN
+F 1 "R" V 6407 4751 40  0000 C CNN
+F 2 "" V 6330 4750 30  0000 C CNN
+F 3 "" H 6400 4750 30  0000 C CNN
+	1    6400 4750
+	0    -1   -1   0   
+$EndComp
+$Comp
+L R R?
+U 1 1 52C72E35
+P 6400 5050
+F 0 "R?" V 6480 5050 40  0000 C CNN
+F 1 "R" V 6407 5051 40  0000 C CNN
+F 2 "" V 6330 5050 30  0000 C CNN
+F 3 "" H 6400 5050 30  0000 C CNN
+	1    6400 5050
+	0    -1   -1   0   
+$EndComp
+$Comp
+L R R?
+U 1 1 52C72E3B
+P 6400 5350
+F 0 "R?" V 6480 5350 40  0000 C CNN
+F 1 "R" V 6407 5351 40  0000 C CNN
+F 2 "" V 6330 5350 30  0000 C CNN
+F 3 "" H 6400 5350 30  0000 C CNN
+	1    6400 5350
+	0    -1   -1   0   
+$EndComp
+$Comp
+L GND #PWR?
+U 1 1 52C72E41
+P 6850 5650
+F 0 "#PWR?" H 6850 5650 30  0001 C CNN
+F 1 "GND" H 6850 5580 30  0001 C CNN
+F 2 "" H 6850 5650 60  0000 C CNN
+F 3 "" H 6850 5650 60  0000 C CNN
+	1    6850 5650
+	1    0    0    -1  
+$EndComp
+Text GLabel 5450 4750 0    60   Input ~ 0
+LED0
+Text GLabel 5450 5050 0    60   Input ~ 0
+LED1
+Text GLabel 5450 5350 0    60   Input ~ 0
+LED2
+Text Notes 5100 4550 0    60   ~ 0
+Voting Selection LEDs\n
+Wire Wire Line
+	6650 4750 6850 4750
+Wire Wire Line
+	6850 4750 6850 5650
+Wire Wire Line
+	6650 5050 6850 5050
+Connection ~ 6850 5050
+Wire Wire Line
+	6650 5350 6850 5350
+Connection ~ 6850 5350
+Wire Wire Line
+	6000 4750 6150 4750
+Wire Wire Line
+	6000 5050 6150 5050
+Wire Wire Line
+	6000 5350 6150 5350
+Wire Wire Line
+	5600 4750 5450 4750
+Wire Wire Line
+	5450 5050 5600 5050
+Wire Wire Line
+	5450 5350 5600 5350
+Wire Notes Line
+	5050 4400 7000 4400
+Wire Notes Line
+	7000 4400 7000 5850
+Wire Notes Line
+	7000 5850 5050 5850
+Wire Notes Line
+	5050 5850 5050 4400
+Text Notes 2700 1200 0    60   ~ 0
+Arduino Duemilanove
+Wire Notes Line
+	2050 1000 6500 1000
+Wire Notes Line
+	6500 1000 6500 4250
+Wire Notes Line
+	6500 4250 2050 4250
+Wire Notes Line
+	2050 4250 2050 1000
+$EndSCHEMATC
