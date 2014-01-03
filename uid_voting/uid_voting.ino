@@ -42,6 +42,13 @@ uint8_t uniqueSet[21] PROGMEM= {
 
 PN532_SPI pn532spi(SPI, 10);
 PN532 nfc(pn532spi);
+
+/* Pinout for Arduino Duemilanove:
+    SS (SCL) - 10
+    MOSI - 11
+    MISO - 12
+    SCK - 13
+*/
 //***************End NFC Reader Settings*************
 
 
