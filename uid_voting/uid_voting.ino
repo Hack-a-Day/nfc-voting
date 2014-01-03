@@ -87,7 +87,12 @@ const float delayConstant = 1.30;
 //***************End Tone Settings*************
 
 //*******************HD44780 Settings*************
+#include <LiquidCrystal.h>
 
+// initialize the library with the numbers of the interface pins
+// Vss to Gnd, Vdd to 5V, V0 to 10k pot (GND-5V), A to 5V, K to Gnd
+// (RD,E,D4,D5,D6,D7)
+LiquidCrystal lcd(4, 5, 6, 7, 8, 16);
 //***************End HD44780 Settings*************
 
 //*******************LED Settings*************
@@ -117,6 +122,15 @@ void initJumpers(void) {
   digitalWrite(2, HIGH);
   pinMode(3, INPUT);
   digitalWrite(3, HIGH);
+}
+
+/********************************
+  Initialize pins for HD44780 Character LCD
+********************************/
+void initLCD(void) {
+  lcd.begin(20, 4);
+  // Print a message to the LCD.
+  lcd.print("Hello, World!");
 }
 
 /********************************
@@ -377,6 +391,7 @@ void setup(void) {
   initEncoder();
   initJumpers();
   initLED();
+  initLCD();
   initNFC();
 }
 
