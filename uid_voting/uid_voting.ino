@@ -93,6 +93,11 @@ const float delayConstant = 1.30;
 // Vss to Gnd, Vdd to 5V, V0 to 10k pot (GND-5V), A to 5V, K to Gnd
 // (RD,E,D4,D5,D6,D7)
 LiquidCrystal lcd(4, 5, 6, 7, 8, 16);
+
+#define LCD_DELAY  3000
+// Used to return display to a default message after LCD_DELAY
+unsigned long lcdDefaultTimer = 0;
+
 //***************End HD44780 Settings*************
 
 //*******************LED Settings*************
@@ -130,7 +135,8 @@ void initJumpers(void) {
 void initLCD(void) {
   lcd.begin(20, 4);
   // Print a message to the LCD.
-  lcd.print("Hello, World!");
+  //lcd.print("Hello, World!");
+  lcdDefaultMessage();
 }
 
 /********************************
@@ -282,6 +288,16 @@ void printTally(void) {
 }
 
 /********************************
+  Print default message on LCD screen
+********************************/
+void lcdDefaultMessage(void) {
+  Serial.print("LCD Default Behavior");
+  lcd.clear();
+  lcd.print("Ready to vote");
+  printTally(); 
+}
+
+/********************************
   Lights up LED corresponding with selected_option variable
 ********************************/
 void syncLED(void) {
@@ -330,12 +346,20 @@ void castBallot(uint8_t hwID[7], uint8_t vote) {
       if ((1<<(i%8)) & (hasVoted[i/8])) {
         //This tag has already voted -- VOTER FRAUD!
         Serial.println("CHEATER -- You've already voted");
+        lcd.clear();
+        lcd.print("CHEATER!!!");
+        lcd.setCursor(0,1);
+        lcd.print("You Already Voted.");
+        lcdDefaultTimer = millis() + (unsigned long)LCD_DELAY;
         playMelody(melody_failure, duration_failure, size_failure);
         return;
       }
       else {
         //This is a valid vote
         Serial.println("Vote has been cast.");
+        lcd.setCursor(0,0);
+        lcd.print("Vote Has Been Cast");
+        lcdDefaultTimer = millis() + (unsigned long)LCD_DELAY;
         ballotCount[vote] += 1;
         //Save ballotCount to EEPROM
         eeprom_write_word((uint16_t*)(64 + (2*vote)), ballotCount[vote]);
@@ -353,6 +377,11 @@ void castBallot(uint8_t hwID[7], uint8_t vote) {
   }
   //If we made it this far the UID isn't in the stored list of valid tokens
   Serial.println("Not a valid voting token");
+  lcd.clear();
+  lcd.print("Voting Token Invalid");
+  lcd.setCursor(0,1);
+  lcd.print("UID not on the list");
+  lcdDefaultTimer = millis() + (unsigned long)LCD_DELAY;
   playMelody(melody_failure, duration_failure, size_failure);
   return;
 }
@@ -453,8 +482,20 @@ void loop(void) {
         }
         else { 
           Serial.println("Wrong UID Length");
+          lcd.clear();
+          lcd.print("Wrong card type");
+          lcd.setCursor(0,1);
+          lcd.print("Invalid UID length");
+          lcdDefaultTimer = millis() + (unsigned long)LCD_DELAY;
+          playMelody(melody_failure, duration_failure, size_failure);
           delay(1000);
         }
+      }
+      if ((lcdDefaultTimer != 0) && (millis() >= lcdDefaultTimer)) {
+        //reset the default timer so we don't trip this next time
+        lcdDefaultTimer = 0;
+        //Display the default message
+        lcdDefaultMessage();
       }
     }
   }
