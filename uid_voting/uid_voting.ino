@@ -91,7 +91,9 @@ const float delayConstant = 1.30;
 //***************End HD44780 Settings*************
 
 //*******************LED Settings*************
-
+#define LED0  17
+#define LED1  18
+#define LED2  19
 //***************End LED Settings*************
 
 
@@ -131,6 +133,21 @@ void initSerial(void) {
 void initTone(void) {
   pinMode(PIEZO_PIN, OUTPUT);
   digitalWrite(PIEZO_PIN, LOW);
+}
+
+/********************************
+  Initialize pins for LEDs
+********************************/
+void initLED(void) {
+  pinMode(LED0, OUTPUT);
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  
+  digitalWrite(LED0, LOW);
+  digitalWrite(LED1, LOW);
+  digitalWrite(LED2, LOW);
+  
+  syncLED();
 }
 
 /********************************
@@ -242,6 +259,26 @@ void printTally(void) {
 }
 
 /********************************
+  Lights up LED corresponding with selected_option variable
+********************************/
+void syncLED(void) {
+  digitalWrite(LED0, LOW);
+  digitalWrite(LED1, LOW);
+  digitalWrite(LED2, LOW);
+  switch(selected_option) {
+    case 0:
+      digitalWrite(LED0, HIGH);
+      break;
+    case 1:
+      digitalWrite(LED1, HIGH);
+      break;
+    case 2:
+      digitalWrite(LED2, HIGH);
+      break;
+  }
+}
+
+/********************************
   This function is called whenever a 7-byte UID is read
   
   -Checks to make sure UID is in the uniqueSet.h file
@@ -339,6 +376,7 @@ void setup(void) {
   initSerial();
   initEncoder();
   initJumpers();
+  initLED();
   initNFC();
 }
 
@@ -403,6 +441,7 @@ void loop(void) {
 ********************************/
 void incSelOpt(void) {
   if (++selected_option > 2) { selected_option = 0; }
+  syncLED();
 }
 
 /********************************
@@ -411,6 +450,7 @@ void incSelOpt(void) {
 void decSelOpt(void) {
   //Postfix checks before decrement
   if (selected_option-- == 0 ) { selected_option = 2; }
+  syncLED();
 }
 
 /********************************
