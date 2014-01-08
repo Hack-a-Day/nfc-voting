@@ -21,6 +21,8 @@ uint8_t hasVoted[64];
 
 uint16_t ballotCount[3];
 
+uint16_t uidReadCount; //used for learning tag uid
+
 /* //Testing:
 unsigned int uniqueSetLen = 3;
 
@@ -254,6 +256,8 @@ void uid_output(void) {
     }
     //Beep to indicate tag was read
     tone(PIEZO_PIN, NOTE_G5, 180);
+    lcd.setCursor(0,1);
+    lcd.print(++uidReadCount);
     
     //Serial.print("UID Value: ");
     //for (uint8_t i=0; i < uidLength; i++) 
@@ -279,11 +283,11 @@ void printTally(void) {
   lcd.setCursor(0,2);
   lcd.print("Ballot Count:");
   lcd.setCursor(0,3);
-  lcd.print("A: ");
+  lcd.print("A:");
   lcd.print(ballotCount[0]);
-  lcd.print("  B: ");
+  lcd.print("  B:");
   lcd.print(ballotCount[1]);
-  lcd.print("  C: ");
+  lcd.print("  C:");
   lcd.print(ballotCount[2]);
 }
 
@@ -440,6 +444,11 @@ void loop(void) {
   if (digitalRead(2) == LOW) {
     //Jumper is on pin2, enter UID output mode
     Serial.println("UID output mode:");
+    Serial.println("");
+    Serial.println("uint8_t uniqueSet[LINES_TIMES_7] PROGMEM= {");
+    lcd.clear();
+    lcd.print("UID output mode");
+    uidReadCount = 0;
     while(1) {
       uid_output();
     } 
