@@ -540,12 +540,12 @@ ISR(PCINT1_vect)
   old_AB |= ( ENC_RD & 0x03 );
   encval += pgm_read_byte(&(enc_states[( old_AB & 0x0f )]));
   /* post "Navigation forward/reverse" event */
-  if( encval > 3 ) {  //four steps forward
+  if( encval < -3 ) {  //four steps forward
     incSelOpt();
     Serial.print("Up ");Serial.println(selected_option);
     encval = 0;
   }
-  else if( encval < -3 ) {  //four steps backwards
+  else if( encval > 3  ) {  //four steps backwards
     decSelOpt();
     Serial.print("Dn ");Serial.println(selected_option);
     encval = 0;
